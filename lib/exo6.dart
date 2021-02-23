@@ -8,7 +8,6 @@ import 'dart:math' as math;
 math.Random random = new math.Random();
 
 class Tile {
-
   Color color;
   String text;
 
@@ -27,8 +26,8 @@ class Tile {
 class TileWidget extends StatelessWidget {
   final Tile tile;
 
-  TileWidget(this.tile, String s){
-    tile.text =s;
+  TileWidget(this.tile, String s) {
+    tile.text = s;
   }
 
   @override
@@ -36,29 +35,25 @@ class TileWidget extends StatelessWidget {
     return this.createColoredTileWithText(tile.text);
   }
 
-  Widget createColoredTileWithText(String text){
+  Widget createColoredTileWithText(String text) {
     return Container(
-      key : UniqueKey(),
+      key: UniqueKey(),
       padding: const EdgeInsets.all(8),
-      child: Center (child : Text(text, textAlign: TextAlign.center)),
+      child: Center(child: Text(text, textAlign: TextAlign.center)),
       color: tile.color,
     );
   }
-
 }
 
 class PositionedTiles extends StatefulWidget {
-
-
   @override
   State<StatefulWidget> createState() => PositionedTilesState();
 }
 
-
-
 class PositionedTilesState extends State<PositionedTiles> {
-  List<Widget> tiles =
-      List<Widget>.generate(16, (index) => TileWidget(Tile.randomColor(), "Tile $index"));
+  List<Widget> tiles = List<Widget>.generate(
+      16, (index) => TileWidget(Tile.randomColor(), "Tile $index"));
+
 
   @override
   Widget build(BuildContext context) {
@@ -69,18 +64,18 @@ class PositionedTilesState extends State<PositionedTiles> {
       ),
       body: Center(
           child: Column(
-            children: <Widget>[
-              Expanded(
-                child: GridView.count(
-                    primary: false,
-                    padding: const EdgeInsets.all(4),
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                    crossAxisCount: 4,
-                    children: tiles),
-              ),
-            ],
-          )),
+        children: <Widget>[
+          Expanded(
+            child: GridView.count(
+                primary: false,
+                padding: const EdgeInsets.all(4),
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+                crossAxisCount: 4,
+                children: tiles),
+          ),
+        ],
+      )),
       floatingActionButton: FloatingActionButton(
           child: Icon(Icons.sentiment_very_satisfied), onPressed: swapTiles),
     );
@@ -88,7 +83,6 @@ class PositionedTilesState extends State<PositionedTiles> {
 
   swapTiles() {
     setState(() {
-      tiles.removeAt(6);
       tiles.insert(6, tiles.removeAt(7));
     });
   }
