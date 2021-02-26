@@ -7,6 +7,7 @@ import 'package:tp2/exo4.dart';
 import 'exo5a.dart';
 import 'exo5b.dart';
 import 'exo6.dart';
+import 'testtt.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -50,8 +51,11 @@ class _HomeState extends State<HomePage> {
                 case 'Exercice 5a': return Exo5aWidget();
                 case 'Exercice 5b': return Exo5bWidget();
                 case 'Exercice 5c': return Exo5cWidget();
-                case 'Exercice 6': return PositionedTiles();
-                default: return HomePage();
+                case 'Exercice 6':
+              return PositionedTiles();
+            case 'Test':
+              return PositionedTiles2();
+            default: return HomePage();
                 break;
               }
         }));

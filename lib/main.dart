@@ -3,7 +3,16 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'HomePage.dart';
 
-List<String> Exercices = ["Exercice 1", "Exercice 2", "Exercice 4", "Exercice 5a", "Exercice 5b", "Exercice 5c", "Exercice 6"];
+List<String> Exercices = [
+  "Exercice 1",
+  "Exercice 2",
+  "Exercice 4",
+  "Exercice 5a",
+  "Exercice 5b",
+  "Exercice 5c",
+  "Exercice 6",
+  "Test"
+];
 
 void main() {
   runApp(MyApp());

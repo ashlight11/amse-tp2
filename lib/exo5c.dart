@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 
 String image = 'https://picsum.photos/512/1024';
 
-List<Tile> tiles = [new Tile(imageURL: image, alignment: Alignment(-1, -1))];
-
 class Tile {
   String imageURL;
   Alignment alignment;
