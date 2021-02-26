@@ -7,11 +7,12 @@ import 'dart:math' as math;
 
 math.Random random = new math.Random();
 
+// Tile of random color
+
 class Tile {
   Color color;
-  String text;
 
-  Tile(this.color, this.text);
+  Tile(this.color);
 
   Tile.randomColor() {
     this.color = Color.fromARGB(
@@ -25,60 +26,119 @@ class Tile {
 
 class TileWidget extends StatelessWidget {
   final Tile tile;
-  bool isTapped = false;
+  String text;
+  bool isEmpty = false;
+  bool isNextToEmpty = false;
 
-  TileWidget(this.tile, String s) {
-    tile.text = s;
-  }
+  TileWidget(this.tile, this.text);
 
   @override
   Widget build(BuildContext context) {
-    return createColoredTileWithText(tile.text);
+    return createColoredTileWithText();
   }
 
-  Widget createColoredTileWithText(String text) {
+  Widget createColoredTileWithText() {
     return Container(
       padding: const EdgeInsets.all(8),
+      decoration: (isEmpty || isNextToEmpty)
+          ? myEmptyBoxDecoration()
+          : myBoxDecoration(),
       child: Center(child: Text(text, textAlign: TextAlign.center)),
+    );
+  }
+
+  BoxDecoration myEmptyBoxDecoration() {
+    return BoxDecoration(
+      border: Border.all(color: Colors.red, width: 8),
+      color: Colors.white,
+    );
+  }
+
+  BoxDecoration myBoxDecoration() {
+    return BoxDecoration(
       color: tile.color,
     );
   }
 }
 
-Widget emptyTheWidget(TileWidget tileToEmpty) {
-  tileToEmpty.isTapped = true;
-  return Container(
-    padding: const EdgeInsets.all(8),
-    child: Center(child: Text("Empty tile", textAlign: TextAlign.center)),
-    color: Colors.white,
-  );
-}
-
 bool oneIsEmpty(List<TileWidget> list) {
   bool res = false;
   for (int i = 0; i < list.length; i++) {
-    if (list[i].isTapped == true) {
-      res = true;
+    if (list[i].isEmpty == true) {
+      res = !res;
       break;
     }
   }
   return res;
 }
 
-/*List<Widget> createTiles(double nbTiles) {
-  return List<Widget>.generate(
-      (16).toInt(), (index) => TileWidget(Tile.randomColor(), "Tile $index"));
-} */
+void rebuildAllChildren(BuildContext context) {
+  void rebuild(Element el) {
+    el.markNeedsBuild();
+    el.visitChildren(rebuild);
+  }
 
-class PositionedTiles extends StatefulWidget {
+  (context as Element).visitChildren(rebuild);
+}
+
+class PositionedTiles2 extends StatefulWidget {
   @override
   State<StatefulWidget> createState() => PositionedTilesState();
 }
 
-class PositionedTilesState extends State<PositionedTiles> {
+class PositionedTilesState extends State<PositionedTiles2> {
   double _currentSliderValue = 3;
-  List<TileWidget> tiles = List<TileWidget>.generate(
-      (16).toInt(), (index) => TileWidget(Tile.randomColor(), "Tile $index"));
+  List<TileWidget> tiles = List<TileWidget>.generate(16, (index) {
+    return TileWidget(Tile.randomColor(), "Tile $index");
+  });
+
+  void emptyTheWidget(int index) {
+    tiles.removeAt(index);
+    tiles.insert(index, TileWidget(Tile(Colors.white), "Empty $index"));
+    tiles[index].isEmpty = true;
+
+    if (index - 4 >= 0) {
+      tiles[index - 4].isNextToEmpty = true;
+    }
+    if (index - 1 >= 0 && ((index - 1) % 4) != 3) {
+      tiles[index - 1].isNextToEmpty = true;
+    }
+    if (index + 1 < 16 && ((index + 1) % 4) != 0) {
+      tiles[index + 1].isNextToEmpty = true;
+    }
+    if (index + 4 < 16) {
+      tiles[index + 4].isNextToEmpty = true;
+    }
+  }
+
+  int findTheEmpty() {
+    int res = 0;
+    for (int i = 0; i < tiles.length; i++) {
+      if (tiles[i].isEmpty == true) {
+        res = i;
+      }
+    }
+    return res;
+  }
+
+  void cleanTheRest() {
+    int position = findTheEmpty();
+    tiles.removeAt(position);
+    tiles.insert(position, TileWidget(Tile.randomColor(), "Tile $position"));
+    tiles[position].isEmpty = false;
+    if (position - 4 >= 0) {
+      tiles[position - 4].isNextToEmpty = false;
+    }
+    if (position - 1 >= 0 && ((position - 1) % 4) != 3) {
+      tiles[position - 1].isNextToEmpty = false;
+    }
+    if (position + 1 < 16 && ((position + 1) % 4) != 0) {
+      tiles[position + 1].isNextToEmpty = false;
+    }
+    if (position + 4 < 16) {
+      tiles[position + 4].isNextToEmpty = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -99,10 +159,16 @@ class PositionedTilesState extends State<PositionedTiles> {
                   child: tiles[index],
                   onTap: () {
                     setState(() {
-                      if (!oneIsEmpty(tiles)) {
-                        tiles.insert(index, emptyTheWidget(tiles[index]));
+                      if (tiles[index].isEmpty == false && !oneIsEmpty(tiles)) {
+                        emptyTheWidget(index);
+                      }
+                      if (tiles[index].isNextToEmpty == true) {
+                        cleanTheRest();
+
+                        emptyTheWidget(index);
                       }
                     });
+                    rebuildAllChildren(context);
                   },
                 );
               },
@@ -127,14 +193,6 @@ class PositionedTilesState extends State<PositionedTiles> {
               })
         ],
       )),
-      floatingActionButton: FloatingActionButton(
-          child: Icon(Icons.sentiment_very_satisfied), onPressed: swapTiles),
     );
-  }
-
-  swapTiles() {
-    setState(() {
-      tiles.insert(6, tiles.removeAt(7));
-    });
   }
 }

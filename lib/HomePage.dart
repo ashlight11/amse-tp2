@@ -44,20 +44,27 @@ class _HomeState extends State<HomePage> {
       onTap: () {
         Navigator.push(
             context, MaterialPageRoute(builder: (context) {
-              switch (exercice){
-                case 'Exercice 1': return Exo1Widget();
-                case 'Exercice 2': return Exo2Widget();
-                case 'Exercice 4': return Exo4Widget();
-                case 'Exercice 5a': return Exo5aWidget();
-                case 'Exercice 5b': return Exo5bWidget();
-                case 'Exercice 5c': return Exo5cWidget();
-                case 'Exercice 6':
-              return PositionedTiles();
-            case 'Test':
+              switch (exercice) {
+            case 'Exercice 1':
+              return Exo1Widget();
+            case 'Exercice 2':
+              return Exo2Widget();
+            case 'Exercice 4':
+              return Exo4Widget();
+            case 'Exercice 5a':
+              return Exo5aWidget();
+            case 'Exercice 5b':
+              return Exo5bWidget();
+            case 'Exercice 5c':
+              return Exo5cWidget();
+            case 'Exercice 6':
               return PositionedTiles2();
-            default: return HomePage();
-                break;
-              }
+            case 'Test':
+              return PositionedTiles3();
+            default:
+              return HomePage();
+              break;
+          }
         }));
       },
     );
