@@ -1,7 +1,13 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
-String image = 'https://picsum.photos/512/1024';
+/* ------------------------------------------
+Permet de déplacer des tuiles de couleur entre elles selon une sélection initiale
+
+TODO : Taille variable
+TODO : mélanger
+TODO : détecter victoire
+--------------------------------------------- */
 
 // ==============
 // Models
@@ -9,28 +15,16 @@ String image = 'https://picsum.photos/512/1024';
 
 math.Random random = new math.Random();
 
-// Tile : piece of a picture
+// Tile of random color
 
 class Tile {
-  String imageURL;
-  Alignment alignment;
+  Color color;
 
-  Tile({this.imageURL, this.alignment});
+  Tile(this.color);
 
-  Widget croppedImageTile(double number) {
-    return FittedBox(
-      fit: BoxFit.fill,
-      child: ClipRect(
-        child: Container(
-          child: Align(
-            alignment: this.alignment,
-            widthFactor: 1 / number,
-            heightFactor: 1 / number,
-            child: Image.network(this.imageURL),
-          ),
-        ),
-      ),
-    );
+  Tile.randomColor() {
+    this.color = Color.fromARGB(
+        255, random.nextInt(255), random.nextInt(255), random.nextInt(255));
   }
 }
 
@@ -40,42 +34,39 @@ class Tile {
 
 class TileWidget extends StatelessWidget {
   final Tile tile;
+  String text;
   bool isEmpty = false;
   bool isNextToEmpty = false;
-  double nbOfTiles;
 
-  TileWidget(this.tile, this.nbOfTiles);
+  TileWidget(this.tile, this.text);
 
   @override
   Widget build(BuildContext context) {
-    return createTileWidgetFrom(nbOfTiles);
+    return createColoredTileWithText();
   }
 
-  Widget createTileWidgetFrom(double number) {
+  Widget createColoredTileWithText() {
     return Container(
-      margin: EdgeInsets.all(4.0),
-      decoration: (isEmpty || isNextToEmpty) ? myEmptyBoxDecoration() : null,
-      child: InkWell(child: this.tile.croppedImageTile(number)),
+      padding: const EdgeInsets.all(8),
+      decoration: (isEmpty || isNextToEmpty)
+          ? myEmptyBoxDecoration()
+          : myBoxDecoration(),
+      child: Center(child: Text(text, textAlign: TextAlign.center)),
     );
   }
 
   BoxDecoration myEmptyBoxDecoration() {
     return BoxDecoration(
-      border: Border.all(color: Colors.red, width: 5),
+      border: Border.all(color: Colors.red, width: 8),
+      color: Colors.white,
     );
   }
-}
 
-List<Tile> createTiles(double nbTiles) {
-  List<Tile> res = [];
-  for (double i = -1; i <= 1; i += 2 / (nbTiles - 1)) {
-    // boucle y
-    for (double j = -1; j <= 1; j += 2 / (nbTiles - 1)) {
-      // boucle x
-      res.add(new Tile(imageURL: image, alignment: Alignment(j, i)));
-    }
+  BoxDecoration myBoxDecoration() {
+    return BoxDecoration(
+      color: tile.color,
+    );
   }
-  return res;
 }
 
 bool oneIsEmpty(List<TileWidget> list) {
@@ -98,19 +89,31 @@ void rebuildAllChildren(BuildContext context) {
   (context as Element).visitChildren(rebuild);
 }
 
-class PositionedTiles3 extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PositionedTilesState();
+List<TileWidget> createTiles(double nbTiles) {
+  return List < TileWidget
+  >.generate(nbTiles.toInt(), (index) {
+  return TileWidget(Tile.randomColor(), "Tile $index");
+  });
 }
 
-class PositionedTilesState extends State<PositionedTiles3> {
-  double _currentSliderValue = 3;
 
-  List<TileWidget> tiles = List<TileWidget>.generate((9).toInt(), (index) {
-    return TileWidget(createTiles(3)[index], 3);
-  });
+class PositionedTiles1 extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _PositionedTiles1();
+}
+
+class _PositionedTiles1 extends State<PositionedTiles1> {
+  double _currentSliderValue = 3;
+  List<TileWidget> tiles = [];
+
+  _PositionedTiles1() {
+    this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
+  }
+
 
   void emptyTheWidget(int index) {
+    tiles.removeAt(index);
+    tiles.insert(index, TileWidget(Tile(Colors.white), "Empty $index"));
     tiles[index].isEmpty = true;
 
     if (index - _currentSliderValue >= 0) {
@@ -140,6 +143,8 @@ class PositionedTilesState extends State<PositionedTiles3> {
 
   void cleanTheRest() {
     int position = findTheEmpty();
+    tiles.removeAt(position);
+    tiles.insert(position, TileWidget(Tile.randomColor(), "Tile $position"));
     tiles[position].isEmpty = false;
     if (position - _currentSliderValue >= 0) {
       tiles[position - _currentSliderValue.toInt()].isNextToEmpty = false;
@@ -166,60 +171,52 @@ class PositionedTilesState extends State<PositionedTiles3> {
       ),
       body: Center(
           child: Column(
-        children: <Widget>[
-          Expanded(
-            child: GridView.builder(
-              primary: false,
-              padding: const EdgeInsets.all(4),
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  child: tiles[index],
-                  onTap: () {
-                    setState(() {
-                      if (tiles[index].isEmpty == false && !oneIsEmpty(tiles)) {
-                        emptyTheWidget(index);
-                      }
-                      if (tiles[index].isNextToEmpty == true) {
-                        if (oneIsEmpty(tiles)) {
-                          tiles.insert(index, tiles.removeAt(findTheEmpty()));
-                        }
+            children: <Widget>[
+              Expanded(
+                child: GridView.builder(
+                  primary: false,
+                  padding: const EdgeInsets.all(4),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      child: tiles[index],
+                      onTap: () {
+                        setState(() {
+                          if (!oneIsEmpty(tiles)) {
+                            emptyTheWidget(index);
+                          }
+                          if (tiles[index].isNextToEmpty == true) {
+                            cleanTheRest();
 
-                        cleanTheRest();
-
-                        emptyTheWidget(index);
-                      }
-                    });
-                    rebuildAllChildren(context);
+                            emptyTheWidget(index);
+                          }
+                        });
+                        rebuildAllChildren(context);
+                      },
+                    );
                   },
-                );
-              },
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _currentSliderValue.toInt(),
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _currentSliderValue.toInt(),
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                  ),
+                  itemCount: (_currentSliderValue * _currentSliderValue)
+                      .toInt(),
+                ),
               ),
-              itemCount: (_currentSliderValue * _currentSliderValue).toInt(),
-            ),
-          ),
-          Slider(
-              value: _currentSliderValue,
-              min: 3,
-              max: 6,
-              divisions: 3,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              })
-        ],
-      )),
+              Slider(
+                  value: _currentSliderValue,
+                  min: 3,
+                  max: 6,
+                  divisions: 3,
+                  label: _currentSliderValue.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      _currentSliderValue = value;
+                      this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
+                    });
+                  })
+            ],
+          )),
     );
-  }
-
-  swapTiles() {
-    setState(() {
-      tiles.insert(6, tiles.removeAt(7));
-    });
   }
 }

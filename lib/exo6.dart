@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
 
+/* ------------------------------------------
+Permet de déplacer des tuiles de couleur entre elles selon une sélection initiale
+
+Taille variable
+--------------------------------------------- */
+
 // ==============
 // Models
 // ==============
@@ -81,33 +87,45 @@ void rebuildAllChildren(BuildContext context) {
   (context as Element).visitChildren(rebuild);
 }
 
-class PositionedTiles2 extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() => PositionedTilesState();
-}
-
-class PositionedTilesState extends State<PositionedTiles2> {
-  double _currentSliderValue = 3;
-  List<TileWidget> tiles = List<TileWidget>.generate(16, (index) {
+List<TileWidget> createTiles(double nbTiles) {
+  return List < TileWidget
+  >.generate(nbTiles.toInt(), (index) {
     return TileWidget(Tile.randomColor(), "Tile $index");
   });
+}
+
+
+class Exo6Widget extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() => _Exo6Widget();
+}
+
+class _Exo6Widget extends State<Exo6Widget> {
+  double _currentSliderValue = 3;
+  List<TileWidget> tiles = [];
+
+  _Exo6Widget() {
+    this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
+  }
+
 
   void emptyTheWidget(int index) {
     tiles.removeAt(index);
     tiles.insert(index, TileWidget(Tile(Colors.white), "Empty $index"));
     tiles[index].isEmpty = true;
 
-    if (index - 4 >= 0) {
-      tiles[index - 4].isNextToEmpty = true;
+    if (index - _currentSliderValue >= 0) {
+      tiles[index - _currentSliderValue.toInt()].isNextToEmpty = true;
     }
-    if (index - 1 >= 0 && ((index - 1) % 4) != 3) {
+    if (index - 1 >= 0 &&
+        ((index - 1) % _currentSliderValue) != _currentSliderValue - 1) {
       tiles[index - 1].isNextToEmpty = true;
     }
-    if (index + 1 < 16 && ((index + 1) % 4) != 0) {
+    if (index + 1 < tiles.length && ((index + 1) % _currentSliderValue) != 0) {
       tiles[index + 1].isNextToEmpty = true;
     }
-    if (index + 4 < 16) {
-      tiles[index + 4].isNextToEmpty = true;
+    if (index + _currentSliderValue < tiles.length) {
+      tiles[index + _currentSliderValue.toInt()].isNextToEmpty = true;
     }
   }
 
@@ -126,17 +144,19 @@ class PositionedTilesState extends State<PositionedTiles2> {
     tiles.removeAt(position);
     tiles.insert(position, TileWidget(Tile.randomColor(), "Tile $position"));
     tiles[position].isEmpty = false;
-    if (position - 4 >= 0) {
-      tiles[position - 4].isNextToEmpty = false;
+    if (position - _currentSliderValue >= 0) {
+      tiles[position - _currentSliderValue.toInt()].isNextToEmpty = false;
     }
-    if (position - 1 >= 0 && ((position - 1) % 4) != 3) {
+    if (position - 1 >= 0 &&
+        ((position - 1) % _currentSliderValue) != _currentSliderValue - 1) {
       tiles[position - 1].isNextToEmpty = false;
     }
-    if (position + 1 < 16 && ((position + 1) % 4) != 0) {
+    if (position + 1 < tiles.length &&
+        ((position + 1) % _currentSliderValue) != 0) {
       tiles[position + 1].isNextToEmpty = false;
     }
-    if (position + 4 < 16) {
-      tiles[position + 4].isNextToEmpty = false;
+    if (position + _currentSliderValue < tiles.length) {
+      tiles[position + _currentSliderValue.toInt()].isNextToEmpty = false;
     }
   }
 
@@ -149,50 +169,52 @@ class PositionedTilesState extends State<PositionedTiles2> {
       ),
       body: Center(
           child: Column(
-        children: <Widget>[
-          Expanded(
-            child: GridView.builder(
-              primary: false,
-              padding: const EdgeInsets.all(4),
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  child: tiles[index],
-                  onTap: () {
-                    setState(() {
-                      if (tiles[index].isEmpty == false && !oneIsEmpty(tiles)) {
-                        emptyTheWidget(index);
-                      }
-                      if (tiles[index].isNextToEmpty == true) {
-                        cleanTheRest();
+            children: <Widget>[
+              Expanded(
+                child: GridView.builder(
+                  primary: false,
+                  padding: const EdgeInsets.all(4),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      child: tiles[index],
+                      onTap: () {
+                        setState(() {
+                          if (!oneIsEmpty(tiles)) {
+                            emptyTheWidget(index);
+                          }
+                          if (tiles[index].isNextToEmpty == true) {
+                            cleanTheRest();
 
-                        emptyTheWidget(index);
-                      }
-                    });
-                    rebuildAllChildren(context);
+                            emptyTheWidget(index);
+                          }
+                        });
+                        rebuildAllChildren(context);
+                      },
+                    );
                   },
-                );
-              },
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 4, //TODO : implémenter taille variable
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _currentSliderValue.toInt(),
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                  ),
+                  itemCount: (_currentSliderValue * _currentSliderValue)
+                      .toInt(),
+                ),
               ),
-              itemCount: 16, //TODO : implémenter taille variable
-            ),
-          ),
-          Slider(
-              value: _currentSliderValue,
-              min: 3,
-              max: 6,
-              divisions: 3,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                });
-              })
-        ],
-      )),
+              Slider(
+                  value: _currentSliderValue,
+                  min: 3,
+                  max: 6,
+                  divisions: 3,
+                  label: _currentSliderValue.round().toString(),
+                  onChanged: (double value) {
+                    setState(() {
+                      _currentSliderValue = value;
+                      this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
+                    });
+                  })
+            ],
+          )),
     );
   }
 }

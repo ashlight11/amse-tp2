@@ -11,6 +11,7 @@ List<String> Exercices = [
   "Exercice 5b",
   "Exercice 5c",
   "Exercice 6",
+  "Exercice 6b",
   "Test"
 ];
 

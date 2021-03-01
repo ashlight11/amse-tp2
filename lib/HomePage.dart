@@ -7,6 +7,7 @@ import 'package:tp2/exo4.dart';
 import 'exo5a.dart';
 import 'exo5b.dart';
 import 'exo6.dart';
+import 'exo6b.dart';
 import 'testtt.dart';
 
 class HomePage extends StatefulWidget {
@@ -20,7 +21,6 @@ class _HomeState extends State<HomePage> {
   final _biggerFont = TextStyle(fontSize: 18.0);
 
   Widget _buildList() {
-
     return ListView.separated(
       padding: const EdgeInsets.all(8),
       itemCount: Exercices.length,
@@ -42,9 +42,8 @@ class _HomeState extends State<HomePage> {
       ),
       trailing: Icon(Icons.arrow_forward),
       onTap: () {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) {
-              switch (exercice) {
+        Navigator.push(context, MaterialPageRoute(builder: (context) {
+          switch (exercice) {
             case 'Exercice 1':
               return Exo1Widget();
             case 'Exercice 2':
@@ -58,9 +57,11 @@ class _HomeState extends State<HomePage> {
             case 'Exercice 5c':
               return Exo5cWidget();
             case 'Exercice 6':
-              return PositionedTiles2();
+              return Exo6Widget();
+            case 'Exercice 6b':
+              return Exo6bWidget();
             case 'Test':
-              return PositionedTiles3();
+              return PositionedTiles1();
             default:
               return HomePage();
               break;
