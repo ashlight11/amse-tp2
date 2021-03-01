@@ -59,12 +59,12 @@ class TileWidget extends StatelessWidget {
           : myBoxDecoration(),
       child: Center(
           child: Text(
-        text,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: isEmpty ? Colors.white : Colors.black,
-        ),
-      )),
+            text,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              color: isEmpty ? Colors.white : Colors.black,
+            ),
+          )),
     );
   }
 
@@ -115,17 +115,17 @@ List<TileWidget> createTiles(double nbTiles) {
   });
 }
 
-class PositionedTiles1 extends StatefulWidget {
+class Exo7Widget extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _PositionedTiles1();
+  State<StatefulWidget> createState() => _Exo7Widget();
 }
 
-class _PositionedTiles1 extends State<PositionedTiles1> {
+class _Exo7Widget extends State<Exo7Widget> {
   double _currentNbOfTiles = 3;
   bool inPlay = false;
   List<TileWidget> tiles = [];
 
-  _PositionedTiles1() {
+  _Exo7Widget() {
     this.tiles = createTiles(_currentNbOfTiles * _currentNbOfTiles);
   }
 
@@ -213,108 +213,108 @@ class _PositionedTiles1 extends State<PositionedTiles1> {
       ),
       body: Center(
           child: Column(
-        children: <Widget>[
-          Expanded(
-            child: GridView.builder(
-              primary: false,
-              padding: const EdgeInsets.all(4),
-              itemBuilder: (BuildContext context, int index) {
-                return InkWell(
-                  child: tiles[index],
-                  onTap: () {
-                    setState(() {
-                      if (inPlay) {
-                        // si le jeu est lancé
-                        if (tiles[index].isNextToEmpty == true) {
-                          // si on a appuyé sur un voisin
-                          // on "nettoie" la tuile précdemment vide et ses voisins
-                          cleanTheRest(index);
-                          // on vide le nouveau widget selectionné
-                          emptyTheWidget(index);
-                        }
-                        if (isInOrder()) {
-                          // à la suite de quoi, si l'odre est le bon
-                          // on fait apparaître une pop-up
-                          showDialog(
-                            context: context,
-                            builder: (BuildContext context) =>
-                                _buildPopupDialog(context),
-                          );
-                        }
-                      }
-                    });
-                    // peu importe l'action, on à affiche les tuiles à nouveau
-                    rebuildAllChildren(context);
-                  },
-                );
-              },
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: _currentNbOfTiles.toInt(),
-                crossAxisSpacing: 4,
-                mainAxisSpacing: 4,
-              ),
-              itemCount: (_currentNbOfTiles * _currentNbOfTiles).toInt(),
-            ),
-          ),
-          FloatingActionButton.extended(
-            onPressed: () {
-              setState(() {
-                inPlay = !inPlay; // Gestion de "Jouer" et "Stop"
-                if (inPlay) {
-                  // si on joue
-                  // mélange des tuiles
-                  tiles.shuffle();
-                  // on vide un widget aléatoirement
-                  emptyTheWidget(random.nextInt(tiles.length));
-                } else {
-                  // sinon on arrête et on crée un nouveau plateau
-                  reset();
-                }
-              });
-              rebuildAllChildren(context);
-            },
-            icon: Icon(Icons.play_arrow),
-            label: inPlay ? Text("Stop") : Text("Jouer"),
-          ),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              FloatingActionButton(
-                // Gestion de la réduction de la taille du plateau
-                heroTag: "Bouton Moins",
-                onPressed: inPlay
-                    ? null
-                    : () {
+              Expanded(
+                child: GridView.builder(
+                  primary: false,
+                  padding: const EdgeInsets.all(4),
+                  itemBuilder: (BuildContext context, int index) {
+                    return InkWell(
+                      child: tiles[index],
+                      onTap: () {
                         setState(() {
-                          if (_currentNbOfTiles > 3) {
-                            _currentNbOfTiles--;
-                            reset();
+                          if (inPlay) {
+                            // si le jeu est lancé
+                            if (tiles[index].isNextToEmpty == true) {
+                              // si on a appuyé sur un voisin
+                              // on "nettoie" la tuile précdemment vide et ses voisins
+                              cleanTheRest(index);
+                              // on vide le nouveau widget selectionné
+                              emptyTheWidget(index);
+                            }
+                            if (isInOrder()) {
+                              // à la suite de quoi, si l'odre est le bon
+                              // on fait apparaître une pop-up
+                              showDialog(
+                                context: context,
+                                builder: (BuildContext context) =>
+                                    _buildPopupDialog(context),
+                              );
+                            }
                           }
                         });
+                        // peu importe l'action, on à affiche les tuiles à nouveau
+                        rebuildAllChildren(context);
                       },
-                child: Icon(Icons.arrow_downward),
-                backgroundColor: inPlay ? Colors.grey : Colors.lightBlueAccent,
+                    );
+                  },
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: _currentNbOfTiles.toInt(),
+                    crossAxisSpacing: 4,
+                    mainAxisSpacing: 4,
+                  ),
+                  itemCount: (_currentNbOfTiles * _currentNbOfTiles).toInt(),
+                ),
               ),
-              FloatingActionButton(
-                // Gestion de l'augmentation de la taille du plateau
-                heroTag: "Bouton Plus",
-                onPressed: inPlay
-                    ? null
-                    : () {
-                        setState(() {
-                          if (_currentNbOfTiles < 6) {
-                            _currentNbOfTiles++;
-                            reset();
-                          }
-                        });
-                      },
-                child: Icon(Icons.arrow_upward),
-                backgroundColor: inPlay ? Colors.grey : Colors.deepOrangeAccent,
-              )
+              FloatingActionButton.extended(
+                onPressed: () {
+                  setState(() {
+                    inPlay = !inPlay; // Gestion de "Jouer" et "Stop"
+                    if (inPlay) {
+                      // si on joue
+                      // mélange des tuiles
+                      tiles.shuffle();
+                      // on vide un widget aléatoirement
+                      emptyTheWidget(random.nextInt(tiles.length));
+                    } else {
+                      // sinon on arrête et on crée un nouveau plateau
+                      reset();
+                    }
+                  });
+                  rebuildAllChildren(context);
+                },
+                icon: Icon(Icons.play_arrow),
+                label: inPlay ? Text("Stop") : Text("Jouer"),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  FloatingActionButton(
+                    // Gestion de la réduction de la taille du plateau
+                    heroTag: "Bouton Moins",
+                    onPressed: inPlay
+                        ? null
+                        : () {
+                      setState(() {
+                        if (_currentNbOfTiles > 3) {
+                          _currentNbOfTiles--;
+                          reset();
+                        }
+                      });
+                    },
+                    child: Icon(Icons.arrow_downward),
+                    backgroundColor: inPlay ? Colors.grey : Colors.lightBlueAccent,
+                  ),
+                  FloatingActionButton(
+                    // Gestion de l'augmentation de la taille du plateau
+                    heroTag: "Bouton Plus",
+                    onPressed: inPlay
+                        ? null
+                        : () {
+                      setState(() {
+                        if (_currentNbOfTiles < 6) {
+                          _currentNbOfTiles++;
+                          reset();
+                        }
+                      });
+                    },
+                    child: Icon(Icons.arrow_upward),
+                    backgroundColor: inPlay ? Colors.grey : Colors.deepOrangeAccent,
+                  )
+                ],
+              ),
             ],
-          ),
-        ],
-      )),
+          )),
     );
   }
 }
@@ -344,7 +344,7 @@ Widget _buildPopupDialog(BuildContext context) {
       FlatButton(
           onPressed: () {
             Navigator.push(context, MaterialPageRoute(builder: (context) {
-              return PositionedTiles1();
+              return Exo7Widget();
             }));
           },
           child: const Text('Rejouer')),

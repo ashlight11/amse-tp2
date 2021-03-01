@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'dart:math' as math;
+import 'exo6.dart';
 
 /* ------------------------------------------
 Permet de déplacer des morceaux d'images entre eux selon une sélection initiale
+
+Taille du plateau variable à l'aide du slider sous le plateau
 --------------------------------------------- */
 
 String image = 'https://picsum.photos/512/1024';
@@ -91,15 +94,6 @@ bool oneIsEmpty(List<TileWidget> list) {
     }
   }
   return res;
-}
-
-void rebuildAllChildren(BuildContext context) {
-  void rebuild(Element el) {
-    el.markNeedsBuild();
-    el.visitChildren(rebuild);
-  }
-
-  (context as Element).visitChildren(rebuild);
 }
 
 class Exo6bWidget extends StatefulWidget {
@@ -217,23 +211,26 @@ class _Exo6bWidget extends State<Exo6bWidget> {
               itemCount: (_currentSliderValue * _currentSliderValue).toInt(),
             ),
           ),
-          Slider(
-              value: _currentSliderValue,
-              min: 3,
-              max: 6,
-              divisions: 3,
-              label: _currentSliderValue.round().toString(),
-              onChanged: (double value) {
-                setState(() {
-                  _currentSliderValue = value;
-                  this.tiles = List<TileWidget>.generate(
-                      (_currentSliderValue * _currentSliderValue).toInt(),
-                      (index) {
-                    return TileWidget(createTiles(_currentSliderValue)[index],
-                        _currentSliderValue);
+          Row(children: <Widget>[
+            Text("   Largeur du plateau:  "),
+            Slider(
+                value: _currentSliderValue,
+                min: 3,
+                max: 6,
+                divisions: 3,
+                label: _currentSliderValue.round().toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    _currentSliderValue = value;
+                    this.tiles = List<TileWidget>.generate(
+                        (_currentSliderValue * _currentSliderValue).toInt(),
+                        (index) {
+                      return TileWidget(createTiles(_currentSliderValue)[index],
+                          _currentSliderValue);
+                    });
                   });
-                });
-              })
+                })
+          ])
         ],
       )),
     );

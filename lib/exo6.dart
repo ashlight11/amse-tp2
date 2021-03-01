@@ -4,7 +4,7 @@ import 'dart:math' as math;
 /* ------------------------------------------
 Permet de déplacer des tuiles de couleur entre elles selon une sélection initiale
 
-Taille variable
+Taille du plateau variable à l'aide du slider sous le plateau
 --------------------------------------------- */
 
 // ==============
@@ -88,12 +88,10 @@ void rebuildAllChildren(BuildContext context) {
 }
 
 List<TileWidget> createTiles(double nbTiles) {
-  return List < TileWidget
-  >.generate(nbTiles.toInt(), (index) {
+  return List<TileWidget>.generate(nbTiles.toInt(), (index) {
     return TileWidget(Tile.randomColor(), "Tile $index");
   });
 }
-
 
 class Exo6Widget extends StatefulWidget {
   @override
@@ -107,7 +105,6 @@ class _Exo6Widget extends State<Exo6Widget> {
   _Exo6Widget() {
     this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
   }
-
 
   void emptyTheWidget(int index) {
     tiles.removeAt(index);
@@ -169,52 +166,55 @@ class _Exo6Widget extends State<Exo6Widget> {
       ),
       body: Center(
           child: Column(
-            children: <Widget>[
-              Expanded(
-                child: GridView.builder(
-                  primary: false,
-                  padding: const EdgeInsets.all(4),
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      child: tiles[index],
-                      onTap: () {
-                        setState(() {
-                          if (!oneIsEmpty(tiles)) {
-                            emptyTheWidget(index);
-                          }
-                          if (tiles[index].isNextToEmpty == true) {
-                            cleanTheRest();
-
-                            emptyTheWidget(index);
-                          }
-                        });
-                        rebuildAllChildren(context);
-                      },
-                    );
-                  },
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: _currentSliderValue.toInt(),
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                  ),
-                  itemCount: (_currentSliderValue * _currentSliderValue)
-                      .toInt(),
-                ),
-              ),
-              Slider(
-                  value: _currentSliderValue,
-                  min: 3,
-                  max: 6,
-                  divisions: 3,
-                  label: _currentSliderValue.round().toString(),
-                  onChanged: (double value) {
+        children: <Widget>[
+          Expanded(
+            child: GridView.builder(
+              primary: false,
+              padding: const EdgeInsets.all(4),
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  child: tiles[index],
+                  onTap: () {
                     setState(() {
-                      _currentSliderValue = value;
-                      this.tiles = createTiles(_currentSliderValue * _currentSliderValue);
+                      if (!oneIsEmpty(tiles)) {
+                        emptyTheWidget(index);
+                      }
+                      if (tiles[index].isNextToEmpty == true) {
+                        cleanTheRest();
+
+                        emptyTheWidget(index);
+                      }
                     });
-                  })
-            ],
-          )),
+                    rebuildAllChildren(context);
+                  },
+                );
+              },
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _currentSliderValue.toInt(),
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+              ),
+              itemCount: (_currentSliderValue * _currentSliderValue).toInt(),
+            ),
+          ),
+          Row(children: <Widget>[
+            Text("   Largeur du plateau:  "),
+            Slider(
+                value: _currentSliderValue,
+                min: 3,
+                max: 6,
+                divisions: 3,
+                label: _currentSliderValue.round().toString(),
+                onChanged: (double value) {
+                  setState(() {
+                    _currentSliderValue = value;
+                    this.tiles =
+                        createTiles(_currentSliderValue * _currentSliderValue);
+                  });
+                })
+          ])
+        ],
+      )),
     );
   }
 }
