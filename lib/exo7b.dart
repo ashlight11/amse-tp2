@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'dart:math' as math;
 import 'HomePage.dart';
 import 'exo6.dart';
 
 /* ------------------------------------------
-Permet de déplacer des morceaux d'images entre eux selon une sélection initiale
+Jeu du taquin avc des morceaux d'images
 
-Taille du plateau variable à l'aide du slider sous le plateau
+Implémente un mélangeur qui garantit que le plateau peut être résolu
+
+-> But du jeu : Recréer l'image initiale
+-> Les boutons flèches haut et bas permettent d'ajuster la taille du plateau entre 4 (à des fins de test) et 36 cases
+Les boutons sont actifs tant que le joueur ne joue pas
+-> Pour commencer à jouer, le joueur doit cliquer sur "Jouer"
+-> Le jeu s'arrête à tout moment à l'appui sur le bouton "Stop"
+-> Lorsque les cases sont dans le bon ordre, une pop-up apparaît
 --------------------------------------------- */
 
 String image = 'https://picsum.photos/512/1024';
-
-// ==============
-// Models
-// ==============
-
-math.Random random = new math.Random();
 
 // Tile : piece of a picture
 
@@ -50,8 +50,8 @@ class TileWidget extends StatelessWidget {
   Tile tile;
   bool isEmpty = false;
   bool isNextToEmpty = false;
-  double nbOfTiles;
-  int id;
+  double nbOfTiles; // -> contrôler la division de l'image initiale
+  int id; // -> identifiant qui permet de savoir si les images sont dans le bon ordre
 
   TileWidget(this.tile, this.nbOfTiles, this.id);
 
@@ -64,7 +64,8 @@ class TileWidget extends StatelessWidget {
     return Container(
       margin: EdgeInsets.all(4.0),
       decoration: (isEmpty || isNextToEmpty) ? myEmptyBoxDecoration() : null,
-      child: InkWell(child: this.tile.croppedImageTile(number)),
+      child:
+          isEmpty ? null : InkWell(child: this.tile.croppedImageTile(number)),
     );
   }
 
@@ -104,7 +105,7 @@ class Exo7bWidget extends StatefulWidget {
 }
 
 class _Exo7bWidget extends State<Exo7bWidget> {
-  double _currentNbOfTiles = 3;
+  double _currentNbOfTiles = 2; // 2 afin de jouer plus vite
   List<TileWidget> tiles = [];
   bool inPlay = false;
 
@@ -116,24 +117,82 @@ class _Exo7bWidget extends State<Exo7bWidget> {
     });
   }
 
+  // compte le nombre d'inversions (c-a-d de numéros non à leur place) dans une liste
+  int inversionCount(List<TileWidget> list) {
+    int res = 0;
+    for (int i = 0; i < list.length; i++) {
+      if (list[i].id != i) {
+        res++;
+      }
+    }
+    return res;
+  }
+
+  // mélange la liste aléatoirement mais garanti que l'on peut résoudre le puzzle
+  void mixUp() {
+    List<TileWidget> test = tiles;
+
+    // si la largeur du plateau est impaire
+    if (_currentNbOfTiles % 2 == 1) {
+      // on mélange
+      do {
+        test.shuffle();
+        // tant que le nombre d'inversions est impair (c-a-d tant qu'il n'est pas pair)
+      } while (inversionCount(test) % 2 == 1);
+    } else {
+      // sinon -> largeur paire
+      // et case vide sur une ligne paire depuis le bas du tableau
+      if ((findTheEmpty() ~/ _currentNbOfTiles) % 2 == 0) {
+        do {
+          test.shuffle();
+          // on veut un nombre d'inversions impair
+        } while (inversionCount(test) % 2 == 0);
+      } else {
+        // case vide sur une ligne impaire
+        do {
+          test.shuffle();
+          // nombre d'inversions pair
+        } while (inversionCount(test) % 2 == 1);
+      }
+    }
+    // on affecte la liste résoluble à tiles
+    tiles = test;
+  }
+
+  // vide le widget
   void emptyTheWidget(int index) {
     tiles[index].isEmpty = true;
+  }
 
-    if (index - _currentNbOfTiles >= 0) {
-      tiles[index - _currentNbOfTiles.toInt()].isNextToEmpty = true;
+  // détermine quels sont les voisins d'une case à une certaine position donnée
+  void identifyNeighbours(int position) {
+    if (position - _currentNbOfTiles >= 0) {
+      tiles[position - _currentNbOfTiles.toInt()].isNextToEmpty = true;
     }
-    if (index - 1 >= 0 &&
-        ((index - 1) % _currentNbOfTiles) != _currentNbOfTiles - 1) {
-      tiles[index - 1].isNextToEmpty = true;
+    if (position - 1 >= 0 &&
+        ((position - 1) % _currentNbOfTiles) != _currentNbOfTiles - 1) {
+      tiles[position - 1].isNextToEmpty = true;
     }
-    if (index + 1 < tiles.length && ((index + 1) % _currentNbOfTiles) != 0) {
-      tiles[index + 1].isNextToEmpty = true;
+    if (position + 1 < tiles.length &&
+        ((position + 1) % _currentNbOfTiles) != 0) {
+      tiles[position + 1].isNextToEmpty = true;
     }
-    if (index + _currentNbOfTiles < tiles.length) {
-      tiles[index + _currentNbOfTiles.toInt()].isNextToEmpty = true;
+    if (position + _currentNbOfTiles < tiles.length) {
+      tiles[position + _currentNbOfTiles.toInt()].isNextToEmpty = true;
     }
   }
 
+  // inverse le contenu des tuiles ainsi que leurs identifiants
+  void swapTiles(int index) {
+    Tile temp = tiles[index].tile;
+    int idTemp = tiles[index].id;
+    tiles[index].tile = tiles[findTheEmpty()].tile;
+    tiles[index].id = tiles[findTheEmpty()].id;
+    tiles[findTheEmpty()].tile = temp;
+    tiles[findTheEmpty()].id = idTemp;
+  }
+
+  // retourne la position du widget vide
   int findTheEmpty() {
     int res = 0;
     for (int i = 0; i < tiles.length; i++) {
@@ -144,6 +203,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
     return res;
   }
 
+  // nettoie les alentours de l'ancien widget vide ainsi que lui-même
   void cleanTheRest() {
     int position = findTheEmpty();
     tiles[position].isEmpty = false;
@@ -163,7 +223,8 @@ class _Exo7bWidget extends State<Exo7bWidget> {
     }
   }
 
-  void reset(){
+  // génère un nouveau plateau de tuiles non-mélangé
+  void reset() {
     this.tiles = List<TileWidget>.generate(
         (_currentNbOfTiles * _currentNbOfTiles).toInt(), (index) {
       return TileWidget(
@@ -171,6 +232,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
     });
   }
 
+  // détecte si le puzzle est reconstitué
   bool isInOrder() {
     bool res = true;
     for (int i = 0; i < tiles.length; i++) {
@@ -191,111 +253,111 @@ class _Exo7bWidget extends State<Exo7bWidget> {
       ),
       body: Center(
           child: Column(
+        children: <Widget>[
+          Expanded(
+            child: GridView.builder(
+              primary: false,
+              padding: const EdgeInsets.all(4),
+              itemBuilder: (BuildContext context, int index) {
+                return InkWell(
+                  child: tiles[index],
+                  onTap: () {
+                    setState(() {
+                      if (inPlay) {
+                        if (tiles[index].isNextToEmpty == true) {
+                          // on inverse les deux tuiles
+                          swapTiles(index);
+                          // on enlève les précédentes mises en forme
+                          cleanTheRest();
+                          // on vide le nouveau widget qui sera la tuile vide
+                          emptyTheWidget(index);
+                          identifyNeighbours(index);
+                        }
+                        if (isInOrder()) {
+                          // à la suite de quoi, si l'odre est le bon
+                          // on fait apparaître une pop-up
+                          showDialog(
+                            context: context,
+                            builder: (BuildContext context) =>
+                                _buildPopupDialog(context),
+                          );
+                        }
+                      }
+                    });
+                    // on affiche de nouveau les widgets
+                    rebuildAllChildren(context);
+                  },
+                );
+              },
+              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: _currentNbOfTiles.toInt(),
+                crossAxisSpacing: 4,
+                mainAxisSpacing: 4,
+              ),
+              itemCount: (_currentNbOfTiles * _currentNbOfTiles).toInt(),
+            ),
+          ),
+          FloatingActionButton.extended(
+            onPressed: () {
+              setState(() {
+                inPlay = !inPlay; // Gestion de "Jouer" et "Stop"
+                if (inPlay) {
+                  // si on joue
+                  // on vide un widget aléatoirement
+                  emptyTheWidget(random.nextInt(tiles.length));
+                  // on mélange les tuiles de manière résoluble
+                  mixUp();
+                  // on indique les voisins
+                  identifyNeighbours(findTheEmpty());
+                } else {
+                  // sinon on arrête et on crée un nouveau plateau
+                  reset();
+                }
+              });
+              rebuildAllChildren(context);
+            },
+            icon: Icon(Icons.play_arrow),
+            label: inPlay ? Text("Stop") : Text("Jouer"),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Expanded(
-                child: GridView.builder(
-                  primary: false,
-                  padding: const EdgeInsets.all(4),
-                  itemBuilder: (BuildContext context, int index) {
-                    return InkWell(
-                      child: tiles[index],
-                      onTap: () {
+              FloatingActionButton(
+                // Gestion de la réduction de la taille du plateau
+                heroTag: "Bouton Moins",
+                onPressed: inPlay
+                    ? null
+                    : () {
                         setState(() {
-                          if (inPlay){
-                            if (tiles[index].isNextToEmpty == true) {
-                              // on inverse les deux tuiles
-                              Tile temp = tiles[index].tile;
-                              tiles[index].tile = tiles[findTheEmpty()].tile;
-                              tiles[findTheEmpty()].tile = temp;
-
-                              // on enlève les précédentes mises en forme
-                              cleanTheRest();
-                              // on vide le nouveau widget qui sera la tuile vide
-                              emptyTheWidget(index);
-                            }
-                            if (isInOrder()) {
-                              // à la suite de quoi, si l'odre est le bon
-                              // on fait apparaître une pop-up
-                              showDialog(
-                                context: context,
-                                builder: (BuildContext context) =>
-                                    _buildPopupDialog(context),
-                              );
-                            }
+                          if (_currentNbOfTiles > 2) {
+                            _currentNbOfTiles--;
+                            reset();
                           }
                         });
-                        // on affiche de nouveau les widgets
-                        rebuildAllChildren(context);
                       },
-                    );
-                  },
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: _currentNbOfTiles.toInt(),
-                    crossAxisSpacing: 4,
-                    mainAxisSpacing: 4,
-                  ),
-                  itemCount: (_currentNbOfTiles * _currentNbOfTiles).toInt(),
-                ),
+                child: Icon(Icons.arrow_downward),
+                backgroundColor: inPlay ? Colors.grey : Colors.lightBlueAccent,
               ),
-              FloatingActionButton.extended(
-                onPressed: () {
-                  setState(() {
-                    inPlay = !inPlay; // Gestion de "Jouer" et "Stop"
-                    if (inPlay) {
-                      // si on joue
-                      // mélange des tuiles
-                      tiles.shuffle();
-                      // on vide un widget aléatoirement
-                      emptyTheWidget(random.nextInt(tiles.length));
-                    } else {
-                      // sinon on arrête et on crée un nouveau plateau
-                      reset();
-                    }
-                  });
-                  rebuildAllChildren(context);
-                },
-                icon: Icon(Icons.play_arrow),
-                label: inPlay ? Text("Stop") : Text("Jouer"),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  FloatingActionButton(
-                    // Gestion de la réduction de la taille du plateau
-                    heroTag: "Bouton Moins",
-                    onPressed: inPlay
-                        ? null
-                        : () {
-                      setState(() {
-                        if (_currentNbOfTiles > 3) {
-                          _currentNbOfTiles--;
-                          reset();
-                        }
-                      });
-                    },
-                    child: Icon(Icons.arrow_downward),
-                    backgroundColor: inPlay ? Colors.grey : Colors.lightBlueAccent,
-                  ),
-                  FloatingActionButton(
-                    // Gestion de l'augmentation de la taille du plateau
-                    heroTag: "Bouton Plus",
-                    onPressed: inPlay
-                        ? null
-                        : () {
-                      setState(() {
-                        if (_currentNbOfTiles < 6) {
-                          _currentNbOfTiles++;
-                          reset();
-                        }
-                      });
-                    },
-                    child: Icon(Icons.arrow_upward),
-                    backgroundColor: inPlay ? Colors.grey : Colors.deepOrangeAccent,
-                  )
-                ],
-              ),
+              FloatingActionButton(
+                // Gestion de l'augmentation de la taille du plateau
+                heroTag: "Bouton Plus",
+                onPressed: inPlay
+                    ? null
+                    : () {
+                        setState(() {
+                          if (_currentNbOfTiles < 6) {
+                            _currentNbOfTiles++;
+                            reset();
+                          }
+                        });
+                      },
+                child: Icon(Icons.arrow_upward),
+                backgroundColor: inPlay ? Colors.grey : Colors.deepOrangeAccent,
+              )
             ],
-          )),
+          ),
+        ],
+      )),
     );
   }
 }
