@@ -108,6 +108,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
   double _currentNbOfTiles = 2; // 2 afin de jouer plus vite
   List<TileWidget> tiles = [];
   bool inPlay = false;
+  int _moveCount = 0;
 
   _Exo7bWidget() {
     this.tiles = List<TileWidget>.generate(
@@ -184,6 +185,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
 
   // inverse le contenu des tuiles ainsi que leurs identifiants
   void swapTiles(int index) {
+    _moveCount ++;
     Tile temp = tiles[index].tile;
     int idTemp = tiles[index].id;
     tiles[index].tile = tiles[findTheEmpty()].tile;
@@ -225,6 +227,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
 
   // génère un nouveau plateau de tuiles non-mélangé
   void reset() {
+    _moveCount = 0;
     this.tiles = List<TileWidget>.generate(
         (_currentNbOfTiles * _currentNbOfTiles).toInt(), (index) {
       return TileWidget(
@@ -356,6 +359,7 @@ class _Exo7bWidget extends State<Exo7bWidget> {
               )
             ],
           ),
+          Text("Déplacements effectués : $_moveCount"),
         ],
       )),
     );

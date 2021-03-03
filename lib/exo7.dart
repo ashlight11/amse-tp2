@@ -6,6 +6,9 @@ import 'package:tp2/HomePage.dart';
 /* ------------------------------------------
 Jeu du taquin avc des tuiles de couleur
 
+/!\ remplace une tuile vide par son équivalent plein
+/!\ mais n'échange pas réellement les tuiles entre elles contrairement au 7b (Taquin -2)
+
 -> But du jeu : Avoir fait apparaître le texte de chaque case afin de recréer l'odre naturel [0,1,2,3....,N]
 -> Les boutons flèches haut et bas permettent d'ajuster la taille du plateau entre 9 et 36 cases
 Les boutons sont actifs tant que le joueur ne joue pas
