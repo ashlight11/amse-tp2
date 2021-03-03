@@ -13,6 +13,7 @@ List<String> Exercices = [
   "Exercice 6",
   "Exercice 6b",
   "Jeu du Taquin - 1",
+  "Jeu du Taquin - 2",
   "Test"
 ];
 

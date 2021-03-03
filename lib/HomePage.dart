@@ -9,6 +9,7 @@ import 'exo5b.dart';
 import 'exo6.dart';
 import 'exo6b.dart';
 import 'exo7.dart';
+import 'exo7b.dart';
 import 'testtt.dart';
 
 class HomePage extends StatefulWidget {
@@ -63,8 +64,8 @@ class _HomeState extends State<HomePage> {
               return Exo6bWidget();
             case "Jeu du Taquin - 1":
               return Exo7Widget();
-            case 'Test':
-              return PositionedTiles1();
+            case "Jeu du Taquin - 2":
+              return Exo7bWidget();
             default:
               return HomePage();
               break;
