@@ -1,16 +1,11 @@
 # tp2
 
-A new Flutter project.
+Projet de jeu du Taquin dans le cadre du module AMSE de l'IMT Lille-Douai, session 2020-2021. 
+Développé par Marianne De Poorter.
 
-## Getting Started
+## About
 
-This project is a starting point for a Flutter application.
+Cette application comporte un menu liste avec les différents exercuces qui amènent jusqu'au jeu du Taquin. 
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Jeu du Taquin - 1 (exo7) utilise des tuiles de couleur qu'il faut faire apparaître en les vidant d'abord.
+Jeu du Taquin - 2 (exo7b) est un vrai taquin avec une image tirée d'Internet aléatoirement. C'est ma version finale du jeu, la plus complète de l'application. 
